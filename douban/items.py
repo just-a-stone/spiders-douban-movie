@@ -11,6 +11,7 @@ import scrapy
 class DoubanMovieItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
+    id = scrapy.Field()
     name = scrapy.Field()
     frontCover = scrapy.Field()
     director = scrapy.Field()

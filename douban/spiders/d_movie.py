@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import re
 import scrapy
 import time
 from bs4 import BeautifulSoup
@@ -12,9 +13,11 @@ class DMovieSpider(scrapy.Spider):
     start_urls = ['https://movie.douban.com/subject/25934014/']
 
     def parse(self, response):
+        print(response.request.url)
         html = response.body
         soup = BeautifulSoup(html, 'lxml')
         item = DoubanMovieItem()
+        item['id'] = re.search('/(\d+)/',response.request.url).group(1)
         item['name'] = soup.find('span', attrs={'property': 'v:itemreviewed'}).string
         item['frontCover'] = soup.find('img', attrs={'rel': 'v:image'})['src']
         item['director'] = soup.find('a', attrs={'rel': 'v:directedBy'}).string
@@ -28,18 +31,18 @@ class DMovieSpider(scrapy.Spider):
             item['styleTag'].append(style.string)
 
         item['summary'] = tuple(soup.find('span',attrs={'property':'v:summary'}).stripped_strings)
-        item['associate'] = {}
+        ass = {}
+        item['associate'] = []
         for associate in soup.find('div','recommendations-bd').children:
-            # tags = associate.descendants
             if isinstance(associate,Tag):
                 name = associate.dd.a.string
                 href = associate.dt.a['href']
-                item['associate'][name] = href
-                # print(tags)
-            # item['association'][tags[]]
+                item['associate'].append(name)
+                ass[name] = href
+        item['associate'] = ",".join(item['associate'])
         yield item
 
-        for movie in item['associate'].values():
+        for movie in ass.values():
             yield scrapy.Request(url=movie,callback=self.parse)
 
         print(item)

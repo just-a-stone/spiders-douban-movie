@@ -4,8 +4,10 @@
 #
 # See documentation in:
 # http://doc.scrapy.org/en/latest/topics/spider-middleware.html
+from random import choice
 
 from scrapy import signals
+from douban.helper.CookieHelper import CookieHelper
 
 
 class DoubanMovieSpiderMiddleware(object):
@@ -54,3 +56,22 @@ class DoubanMovieSpiderMiddleware(object):
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
+
+
+class CustomCookieMiddleware(object):
+    def __init__(self):
+        self.bids = CookieHelper().gen_bids()
+
+    def process_request(self, request, spider):
+        request.headers['cookie'] = 'bid="%s"' % choice(self.bids)
+
+
+class CustomUserAgentMiddleware(object):
+    def process_request(self, request, spider):
+        ug = "Baiduspider"
+        request.headers["User-Agent"] = ug
+
+
+class CustomHeadersMiddleware(object):
+    def process_request(self, request, spider):
+        request.headers["Accept-Language"] = "zh-CN,zh"
