@@ -25,12 +25,14 @@ class DMovieSpider(scrapy.Spider):
         item['stars'] = []
         for actor in soup.find_all('a', {'rel': 'v:starring'}):
             item['stars'].append(actor.string)
+        item['stars'] = str(item['stars'])
 
         item['styleTag'] = []
         for style in soup.find_all('span',attrs={'property':'v:genre'}):
             item['styleTag'].append(style.string)
+        item['styleTag'] = str(item['styleTag'])
 
-        item['summary'] = tuple(soup.find('span',attrs={'property':'v:summary'}).stripped_strings)
+        item['summary'] = str(tuple(soup.find('span',attrs={'property':'v:summary'}).stripped_strings))
         ass = {}
         item['associate'] = []
         for associate in soup.find('div','recommendations-bd').children:
@@ -39,7 +41,7 @@ class DMovieSpider(scrapy.Spider):
                 href = associate.dt.a['href']
                 item['associate'].append(name)
                 ass[name] = href
-        item['associate'] = ",".join(item['associate'])
+        item['associate'] = str(item['associate'])
         yield item
 
         for movie in ass.values():
